@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HTMLランチャー</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--tx:#1b1d21;--sub:#6b7280;--ac:#3b6df0;--acx:#fff;--bd:#e3e5ea;--dg:#d93636;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171b;--card:#22252b;--tx:#eceef2;--sub:#98a0ad;--ac:#6f95ff;--acx:#0d1220;--bd:#33373f;--dg:#ff6b6b}}
+:root[data-theme="dark"]{--bg:#15171b;--card:#22252b;--tx:#eceef2;--sub:#98a0ad;--ac:#6f95ff;--acx:#0d1220;--bd:#33373f;--dg:#ff6b6b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif}
+#home{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:4px 0 4px}
+.hint{font-size:12.5px;color:var(--sub);line-height:1.6;margin:0 0 14px}
+.add{display:block;width:100%;padding:14px;border:0;border-radius:12px;background:var(--ac);color:var(--acx);font-size:16px;font-weight:700}
+.item{background:var(--card);border:1px solid var(--bd);border-radius:12px;margin-top:10px;padding:12px;display:flex;align-items:center;gap:10px}
+.main{flex:1;min-width:0}
+.nm{font-size:16px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta{font-size:12px;color:var(--sub);margin-top:2px}
+.btns{display:flex;gap:6px;flex-shrink:0}
+.b{width:36px;height:36px;border:1px solid var(--bd);border-radius:9px;background:transparent;color:var(--tx);font-size:15px;padding:0}
+.b:disabled{opacity:.3}.b.dg{color:var(--dg)}
+.empty{text-align:center;color:var(--sub);padding:40px 0;font-size:14px}
+#frame{position:fixed;inset:0;width:100%;height:100%;border:0;background:#fff;display:none;z-index:50}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+.box{background:var(--card);border-radius:14px;padding:18px;width:100%;max-width:360px}
+.box p{margin:0 0 12px;font-size:15px}
+.box input{width:100%;padding:11px;font-size:16px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);color:var(--tx);margin-bottom:12px}
+.row{display:flex;gap:8px;justify-content:flex-end}
+.row button{padding:10px 16px;border-radius:9px;border:1px solid var(--bd);background:transparent;color:var(--tx);font-size:15px}
+.row .ok{background:var(--ac);color:var(--acx);border-color:var(--ac);font-weight:700}
+.row .ok.dg{background:var(--dg);border-color:var(--dg);color:#fff}
+</style>
+</head>
+<body>
+<div id="home">
+  <h1>HTMLランチャー</h1>
+  <p class="hint">開いたあと、画面のどこでも二本指で5秒間長押しすると、この一覧に戻ります。</p>
+  <button class="add" id="addBtn">＋ HTMLファイルを追加</button>
+  <input type="file" id="file" accept=".html,.htm,text/html" multiple hidden>
+  <div id="list"></div>
+</div>
+<iframe id="frame" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-downloads allow-pointer-lock allow-presentation" allow="camera; microphone; geolocation; clipboard-read; clipboard-write; fullscreen"></iframe>
+<div id="modal"><div class="box"><p id="mMsg"></p><input id="mIn"><div class="row"><button id="mNo">キャンセル</button><button class="ok" id="mOk">OK</button></div></div></div>
+
+<script>
+// ---------- IndexedDB ----------
+var db, mem = [];
+function openDB(){
+  return new Promise(function(res, rej){
+    var r = indexedDB.open('html-launcher', 1);
+    r.onupgradeneeded = function(){ r.result.createObjectStore('files', {keyPath:'id'}); };
+    r.onsuccess = function(){ db = r.result; res(); };
+    r.onerror = function(){ rej(r.error); };
+  });
+}
+function loadAll(){
+  return new Promise(function(res){
+    var q = db.transaction('files').objectStore('files').getAll();
+    q.onsuccess = function(){ mem = q.result.sort(function(a,b){return a.order-b.order}); res(); };
+  });
+}
+function put(rec){
+  return new Promise(function(res){
+    var t = db.transaction('files','readwrite'); t.objectStore('files').put(rec); t.oncomplete = res;
+  });
+}
+function del(id){
+  return new Promise(function(res){
+    var t = db.transaction('files','readwrite'); t.objectStore('files').delete(id); t.oncomplete = res;
+  });
+}
+
+// ---------- 画面 ----------
+function esc(s){ return s.replace(/[&<>"]/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]}); }
+function kb(n){ return n > 1048576 ? (n/1048576).toFixed(1)+' MB' : Math.max(1,Math.round(n/1024))+' KB'; }
+function render(){
+  var el = document.getElementById('list');
+  if(!mem.length){ el.innerHTML = '<div class="empty">まだファイルがありません</div>'; return; }
+  el.innerHTML = mem.map(function(f,i){
+    return '<div class="item" data-id="'+f.id+'"><div class="main" data-a="open"><div class="nm">'+esc(f.name)+'</div><div class="meta">'+kb(f.size)+'</div></div>'+
+      '<div class="btns"><button class="b" data-a="up"'+(i===0?' disabled':'')+'>▲</button>'+
+      '<button class="b" data-a="down"'+(i===mem.length-1?' disabled':'')+'>▼</button>'+
+      '<button class="b" data-a="ren">✎</button><button class="b dg" data-a="del">🗑</button></div></div>';
+  }).join('');
+}
+function find(id){ return mem.filter(function(f){return f.id===id})[0]; }
+
+// ---------- モーダル ----------
+function ask(msg, val, isConfirm, danger){
+  return new Promise(function(res){
+    var m = document.getElementById('modal'), inp = document.getElementById('mIn'), ok = document.getElementById('mOk');
+    document.getElementById('mMsg').textContent = msg;
+    inp.style.display = isConfirm ? 'none' : 'block'; inp.value = val || '';
+    ok.className = 'ok' + (danger ? ' dg' : ''); ok.textContent = danger ? '削除' : 'OK';
+    m.style.display = 'flex'; if(!isConfirm) setTimeout(function(){inp.focus();inp.select();},50);
+    function done(v){ m.style.display='none'; ok.onclick=null; document.getElementById('mNo').onclick=null; res(v); }
+    ok.onclick = function(){ done(isConfirm ? true : inp.value.trim()); };
+    document.getElementById('mNo').onclick = function(){ done(null); };
+  });
+}
+
+// ---------- 操作 ----------
+document.getElementById('list').addEventListener('click', async function(e){
+  var t = e.target.closest('[data-a]'); if(!t) return;
+  var it = t.closest('.item'), id = it.dataset.id, a = t.dataset.a, i = mem.findIndex(function(f){return f.id===id});
+  if(a==='open') return launch(find(id));
+  if(a==='up' || a==='down'){
+    var j = a==='up' ? i-1 : i+1; if(j<0 || j>=mem.length) return;
+    var tmp = mem[i]; mem[i] = mem[j]; mem[j] = tmp;
+    for(var k=0;k<mem.length;k++){ mem[k].order = k; await put(mem[k]); }
+    render();
+  } else if(a==='ren'){
+    var n = await ask('新しい名前', find(id).name, false);
+    if(n){ find(id).name = n; await put(find(id)); render(); }
+  } else if(a==='del'){
+    var ok = await ask('「'+find(id).name+'」を削除しますか？', '', true, true);
+    if(ok){ await del(id); mem = mem.filter(function(f){return f.id!==id}); render(); }
+  }
+});
+document.getElementById('addBtn').onclick = function(){ document.getElementById('file').click(); };
+document.getElementById('file').onchange = async function(e){
+  var files = Array.prototype.slice.call(e.target.files);
+  for(var f of files){
+    var buf = await f.arrayBuffer(), html;
+    try{ html = new TextDecoder('utf-8',{fatal:true}).decode(buf); }
+    catch(_){ try{ html = new TextDecoder('shift_jis').decode(buf); }catch(__){ html = new TextDecoder('utf-8').decode(buf); } }
+    var rec = {id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), name: f.name.replace(/\.html?$/i,''), html: html, size: f.size, order: mem.length};
+    await put(rec); mem.push(rec);
+  }
+  e.target.value = ''; render();
+};
+
+// ---------- 起動 ----------
+// 開いたHTMLに注入する処理: 保存領域をファイルごとに分離 + 二本指5秒長押しで戻る
+function injected(P){
+  var pre = '__app_'+P+'__';
+  function shim(real){
+    var keys = function(){ var a=[]; for(var i=0;i<real.length;i++){ var k=real.key(i); if(k.indexOf(pre)===0) a.push(k.slice(pre.length)); } return a; };
+    var api = {
+      getItem:function(k){return real.getItem(pre+k)}, setItem:function(k,v){real.setItem(pre+k,String(v))},
+      removeItem:function(k){real.removeItem(pre+k)}, clear:function(){keys().forEach(function(k){real.removeItem(pre+k)})},
+      key:function(i){var k=keys()[i];return k===undefined?null:k}
+    };
+    return new Proxy(api,{
+      get:function(t,p){ if(p==='length') return keys().length; if(p in t) return t[p]; if(typeof p==='string'){var v=real.getItem(pre+p);return v===null?undefined:v;} },
+      set:function(t,p,v){ real.setItem(pre+String(p),String(v)); return true; },
+      deleteProperty:function(t,p){ real.removeItem(pre+String(p)); return true; },
+      has:function(t,p){ return p in t || real.getItem(pre+String(p))!==null; }
+    });
+  }
+  ['localStorage','sessionStorage'].forEach(function(n){
+    try{ var s = shim(window[n]); Object.defineProperty(window,n,{configurable:true,get:function(){return s}}); }catch(e){}
+  });
+  try{
+    var io = indexedDB.open.bind(indexedDB), dd = indexedDB.deleteDatabase.bind(indexedDB);
+    indexedDB.open = function(n,v){ return v===undefined ? io(pre+n) : io(pre+n,v); };
+    indexedDB.deleteDatabase = function(n){ return dd(pre+n); };
+  }catch(e){}
+  var timer = null;
+  function chk(e){
+    if(e.touches.length===2){
+      if(!timer) timer = setTimeout(function(){ timer=null; try{navigator.vibrate&&navigator.vibrate(80)}catch(_){} parent.postMessage({launcherBack:1},'*'); },5000);
+    } else if(timer){ clearTimeout(timer); timer = null; }
+  }
+  ['touchstart','touchend','touchcancel'].forEach(function(n){ window.addEventListener(n,chk,true); });
+}
+function launch(f){
+  var code = '<scr'+'ipt>('+injected.toString()+')('+JSON.stringify(f.id)+')</scr'+'ipt>';
+  var h = f.html, m;
+  if((m = /<head[^>]*>/i.exec(h))) h = h.slice(0,m.index+m[0].length)+code+h.slice(m.index+m[0].length);
+  else if((m = /<html[^>]*>/i.exec(h))) h = h.slice(0,m.index+m[0].length)+code+h.slice(m.index+m[0].length);
+  else if((m = /^\s*<!doctype[^>]*>/i.exec(h))) h = h.slice(0,m[0].length)+code+h.slice(m[0].length);
+  else h = code+h;
+  var fr = document.getElementById('frame');
+  fr.srcdoc = h; fr.style.display = 'block';
+  document.getElementById('home').style.display = 'none';
+  document.body.style.overflow = 'hidden';
+}
+function back(){
+  var fr = document.getElementById('frame');
+  fr.style.display = 'none'; fr.srcdoc = '';
+  document.getElementById('home').style.display = 'block';
+  document.body.style.overflow = '';
+}
+window.addEventListener('message', function(e){
+  if(e.source === document.getElementById('frame').contentWindow && e.data && e.data.launcherBack) back();
+});
+openDB().then(loadAll).then(render).catch(function(){
+  document.getElementById('list').innerHTML = '<div class="empty">保存領域を開けませんでした</div>';
+});
+</script>
+</body>
+</html>
