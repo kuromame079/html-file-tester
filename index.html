@@ -3,194 +3,158 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>HTMLランチャー</title>
+<title>HTMLテスター</title>
 <style>
-:root{--bg:#f4f5f7;--card:#fff;--tx:#1b1d21;--sub:#6b7280;--ac:#3b6df0;--acx:#fff;--bd:#e3e5ea;--dg:#d93636;
+:root{--bg:#f1f8f2;--card:#fff;--ink:#12301a;--sub:#5b7a63;--g:#1f9d55;--g2:#157a40;--line:#cfe5d3;--on:#fff;--danger:#c0392b;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171b;--card:#22252b;--tx:#eceef2;--sub:#98a0ad;--ac:#6f95ff;--acx:#0d1220;--bd:#33373f;--dg:#ff6b6b}}
-:root[data-theme="dark"]{--bg:#15171b;--card:#22252b;--tx:#eceef2;--sub:#98a0ad;--ac:#6f95ff;--acx:#0d1220;--bd:#33373f;--dg:#ff6b6b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1a12;--card:#16281c;--ink:#e3f4e8;--sub:#8fb59a;--g:#2fbf6c;--g2:#4ed58a;--line:#274433;--danger:#ef6a5b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d1a12;--card:#16281c;--ink:#e3f4e8;--sub:#8fb59a;--g:#2fbf6c;--g2:#4ed58a;--line:#274433;--danger:#ef6a5b;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif}
-#home{max-width:640px;margin:0 auto;padding:16px}
-h1{font-size:22px;margin:4px 0 4px}
-.hint{font-size:12.5px;color:var(--sub);line-height:1.6;margin:0 0 14px}
-.add{display:block;width:100%;padding:14px;border:0;border-radius:12px;background:var(--ac);color:var(--acx);font-size:16px;font-weight:700}
-.item{background:var(--card);border:1px solid var(--bd);border-radius:12px;margin-top:10px;padding:12px;display:flex;align-items:center;gap:10px}
-.main{flex:1;min-width:0}
-.nm{font-size:16px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",system-ui,sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 8px}
+h1{font-size:20px;margin:0;display:flex;align-items:center;gap:10px}
+.logo{width:26px;height:26px;border-radius:7px;background:var(--g);position:relative}
+.logo:after{content:"";position:absolute;left:9px;top:6px;border-left:10px solid var(--on);border-top:7px solid transparent;border-bottom:7px solid transparent}
+#list{padding:8px 14px 120px;display:flex;flex-direction:column;gap:10px}
+.item{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px}
+.open{flex:1;min-width:0;display:flex;align-items:center;gap:12px;background:none;border:0;color:var(--ink);text-align:left;padding:6px;font:inherit;cursor:pointer}
+.play{flex:none;width:42px;height:42px;border-radius:50%;background:var(--g);position:relative}
+.play:after{content:"";position:absolute;left:16px;top:12px;border-left:14px solid var(--on);border-top:9px solid transparent;border-bottom:9px solid transparent}
+.nm{font-weight:600;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .meta{font-size:12px;color:var(--sub);margin-top:2px}
-.btns{display:flex;gap:6px;flex-shrink:0}
-.b{width:36px;height:36px;border:1px solid var(--bd);border-radius:9px;background:transparent;color:var(--tx);font-size:15px;padding:0}
-.b:disabled{opacity:.3}.b.dg{color:var(--dg)}
-.empty{text-align:center;color:var(--sub);padding:40px 0;font-size:14px}
-#frame{position:fixed;inset:0;width:100%;height:100%;border:0;background:#fff;display:none;z-index:50}
-#modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
-.box{background:var(--card);border-radius:14px;padding:18px;width:100%;max-width:360px}
-.box p{margin:0 0 12px;font-size:15px}
-.box input{width:100%;padding:11px;font-size:16px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);color:var(--tx);margin-bottom:12px}
-.row{display:flex;gap:8px;justify-content:flex-end}
-.row button{padding:10px 16px;border-radius:9px;border:1px solid var(--bd);background:transparent;color:var(--tx);font-size:15px}
-.row .ok{background:var(--ac);color:var(--acx);border-color:var(--ac);font-weight:700}
-.row .ok.dg{background:var(--dg);border-color:var(--dg);color:#fff}
+.ib{flex:none;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--bg);display:grid;place-items:center;padding:0;cursor:pointer}
+.ib svg{width:18px;height:18px;fill:var(--g)}
+.ib.del svg{fill:var(--danger)}
+.ib:disabled{opacity:.3}
+.col{display:flex;flex-direction:column;gap:4px}
+.col .ib{height:21px;width:36px;border-radius:7px}
+.col .ib svg{width:14px;height:10px}
+.empty{text-align:center;color:var(--sub);margin-top:70px;line-height:1.8}
+.fab{position:fixed;right:20px;bottom:calc(22px + env(safe-area-inset-bottom,0px));width:62px;height:62px;border-radius:50%;background:var(--g);border:0;box-shadow:0 6px 18px rgba(0,0,0,.3);cursor:pointer}
+.fab:before,.fab:after{content:"";position:absolute;left:50%;top:50%;background:var(--on);border-radius:2px;transform:translate(-50%,-50%)}
+.fab:before{width:26px;height:5px}.fab:after{width:5px;height:26px}
+#file{display:none}
+#frame{position:fixed;inset:0;width:100%;height:100%;border:0;background:#fff;z-index:50;display:none}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:20;padding:20px}
+.mask.on{display:flex}
+.dlg{background:var(--card);border-radius:18px;padding:20px;width:100%;max-width:340px;border:1px solid var(--line)}
+.dlg p{margin:0 0 14px;line-height:1.6}
+.dlg input{width:100%;font-size:16px;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);margin-bottom:14px}
+.btns{display:flex;gap:10px;justify-content:flex-end}
+.btn{padding:10px 18px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;cursor:pointer}
+.btn.pri{background:var(--g);border-color:var(--g);color:var(--on)}
+.btn.dng{background:var(--danger);border-color:var(--danger);color:#fff}
 </style>
 </head>
 <body>
-<div id="home">
-  <h1>HTMLランチャー</h1>
-  <p class="hint">開いたあと、画面のどこでも二本指で5秒間長押しすると、この一覧に戻ります。</p>
-  <button class="add" id="addBtn">＋ HTMLファイルを追加</button>
-  <input type="file" id="file" accept=".html,.htm,text/html" multiple hidden>
-  <div id="list"></div>
-</div>
-<iframe id="frame" sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-downloads allow-pointer-lock allow-presentation" allow="camera; microphone; geolocation; clipboard-read; clipboard-write; fullscreen"></iframe>
-<div id="modal"><div class="box"><p id="mMsg"></p><input id="mIn"><div class="row"><button id="mNo">キャンセル</button><button class="ok" id="mOk">OK</button></div></div></div>
+<header><h1><span class="logo"></span>HTMLテスター</h1></header>
+<div id="list"></div>
+<button class="fab" id="add" aria-label="追加"></button>
+<input type="file" id="file" accept=".html,.htm,text/html" multiple>
+<iframe id="frame" allow="autoplay *; fullscreen *; camera *; microphone *; clipboard-read *; clipboard-write *; geolocation *; display-capture *; encrypted-media *"></iframe>
+<div class="mask" id="mask"><div class="dlg" id="dlg"></div></div>
 
 <script>
-// ---------- IndexedDB ----------
-var db, mem = [];
-function openDB(){
-  return new Promise(function(res, rej){
-    var r = indexedDB.open('html-launcher', 1);
-    r.onupgradeneeded = function(){ r.result.createObjectStore('files', {keyPath:'id'}); };
-    r.onsuccess = function(){ db = r.result; res(); };
-    r.onerror = function(){ rej(r.error); };
-  });
-}
-function loadAll(){
-  return new Promise(function(res){
-    var q = db.transaction('files').objectStore('files').getAll();
-    q.onsuccess = function(){ mem = q.result.sort(function(a,b){return a.order-b.order}); res(); };
-  });
-}
-function put(rec){
-  return new Promise(function(res){
-    var t = db.transaction('files','readwrite'); t.objectStore('files').put(rec); t.oncomplete = res;
-  });
-}
-function del(id){
-  return new Promise(function(res){
-    var t = db.transaction('files','readwrite'); t.objectStore('files').delete(id); t.oncomplete = res;
-  });
-}
+(function(){
+var DB,items=[];
+var $=function(s){return document.querySelector(s)};
+var I={
+ edit:'<svg viewBox="0 0 24 24"><polygon points="3,17 3,21 7,21 19,9 15,5"/><polygon points="16.5,3.5 20.5,7.5 22,6 18,2"/></svg>',
+ del:'<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="3" rx="1"/><rect x="9" y="2" width="6" height="3" rx="1"/><path d="M6 10h12l-1 11H7z"/></svg>',
+ up:'<svg viewBox="0 0 14 10"><polygon points="7,0 14,10 0,10"/></svg>',
+ dn:'<svg viewBox="0 0 14 10"><polygon points="0,0 14,0 7,10"/></svg>'
+};
+function open_(){return new Promise(function(res,rej){
+ var r=indexedDB.open("html-tester",1);
+ r.onupgradeneeded=function(){r.result.createObjectStore("files",{keyPath:"id"})};
+ r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error)};
+})}
+function all(){return new Promise(function(res){var q=DB.transaction("files").objectStore("files").getAll();q.onsuccess=function(){res(q.result)};q.onerror=function(){res([])}})}
+function put(o){return new Promise(function(res){var t=DB.transaction("files","readwrite");t.objectStore("files").put(o);t.oncomplete=res;t.onerror=res})}
+function rm(id){return new Promise(function(res){var t=DB.transaction("files","readwrite");t.objectStore("files").delete(id);t.oncomplete=res;t.onerror=res})}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function size(n){return n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(1)+" MB"}
 
-// ---------- 画面 ----------
-function esc(s){ return s.replace(/[&<>"]/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]}); }
-function kb(n){ return n > 1048576 ? (n/1048576).toFixed(1)+' MB' : Math.max(1,Math.round(n/1024))+' KB'; }
+async function load(){items=(await all()).sort(function(a,b){return a.order-b.order});render()}
 function render(){
-  var el = document.getElementById('list');
-  if(!mem.length){ el.innerHTML = '<div class="empty">まだファイルがありません</div>'; return; }
-  el.innerHTML = mem.map(function(f,i){
-    return '<div class="item" data-id="'+f.id+'"><div class="main" data-a="open"><div class="nm">'+esc(f.name)+'</div><div class="meta">'+kb(f.size)+'</div></div>'+
-      '<div class="btns"><button class="b" data-a="up"'+(i===0?' disabled':'')+'>▲</button>'+
-      '<button class="b" data-a="down"'+(i===mem.length-1?' disabled':'')+'>▼</button>'+
-      '<button class="b" data-a="ren">✎</button><button class="b dg" data-a="del">🗑</button></div></div>';
-  }).join('');
+ var L=$("#list");
+ if(!items.length){L.innerHTML='<div class="empty">HTMLファイルがありません<br>右下の＋ボタンから追加してください</div>';return}
+ L.innerHTML=items.map(function(f,i){
+  return '<div class="item" data-id="'+f.id+'"><button class="open" data-a="open"><span class="play"></span><span style="min-width:0"><div class="nm">'+esc(f.name)+'</div><div class="meta">'+size(f.size)+'</div></span></button>'
+  +'<div class="col"><button class="ib" data-a="up"'+(i?'':' disabled')+'>'+I.up+'</button><button class="ib" data-a="dn"'+(i<items.length-1?'':' disabled')+'>'+I.dn+'</button></div>'
+  +'<button class="ib" data-a="ren">'+I.edit+'</button><button class="ib del" data-a="del">'+I.del+'</button></div>';
+ }).join("");
 }
-function find(id){ return mem.filter(function(f){return f.id===id})[0]; }
+async function renumber(){for(var i=0;i<items.length;i++){items[i].order=i;await put(items[i])}render()}
 
-// ---------- モーダル ----------
-function ask(msg, val, isConfirm, danger){
-  return new Promise(function(res){
-    var m = document.getElementById('modal'), inp = document.getElementById('mIn'), ok = document.getElementById('mOk');
-    document.getElementById('mMsg').textContent = msg;
-    inp.style.display = isConfirm ? 'none' : 'block'; inp.value = val || '';
-    ok.className = 'ok' + (danger ? ' dg' : ''); ok.textContent = danger ? '削除' : 'OK';
-    m.style.display = 'flex'; if(!isConfirm) setTimeout(function(){inp.focus();inp.select();},50);
-    function done(v){ m.style.display='none'; ok.onclick=null; document.getElementById('mNo').onclick=null; res(v); }
-    ok.onclick = function(){ done(isConfirm ? true : inp.value.trim()); };
-    document.getElementById('mNo').onclick = function(){ done(null); };
-  });
-}
+function dialog(html,setup){return new Promise(function(res){
+ var m=$("#mask"),d=$("#dlg");d.innerHTML=html;m.classList.add("on");
+ function close(v){m.classList.remove("on");res(v)}
+ setup(d,close);
+})}
+function askName(v){return dialog('<p>名前を入力</p><input id="inp" maxlength="80"><div class="btns"><button class="btn" id="c">キャンセル</button><button class="btn pri" id="o">決定</button></div>',function(d,close){
+ var i=d.querySelector("#inp");i.value=v;setTimeout(function(){i.focus();i.select()},50);
+ d.querySelector("#c").onclick=function(){close(null)};
+ d.querySelector("#o").onclick=function(){close(i.value.trim()||null)};
+ i.onkeydown=function(e){if(e.key==="Enter")close(i.value.trim()||null)};
+})}
+function confirmDel(n){return dialog('<p>「'+esc(n)+'」を削除しますか？<br>このファイルの保存データも消えます。</p><div class="btns"><button class="btn" id="c">キャンセル</button><button class="btn dng" id="o">削除</button></div>',function(d,close){
+ d.querySelector("#c").onclick=function(){close(false)};d.querySelector("#o").onclick=function(){close(true)};
+})}
 
-// ---------- 操作 ----------
-document.getElementById('list').addEventListener('click', async function(e){
-  var t = e.target.closest('[data-a]'); if(!t) return;
-  var it = t.closest('.item'), id = it.dataset.id, a = t.dataset.a, i = mem.findIndex(function(f){return f.id===id});
-  if(a==='open') return launch(find(id));
-  if(a==='up' || a==='down'){
-    var j = a==='up' ? i-1 : i+1; if(j<0 || j>=mem.length) return;
-    var tmp = mem[i]; mem[i] = mem[j]; mem[j] = tmp;
-    for(var k=0;k<mem.length;k++){ mem[k].order = k; await put(mem[k]); }
-    render();
-  } else if(a==='ren'){
-    var n = await ask('新しい名前', find(id).name, false);
-    if(n){ find(id).name = n; await put(find(id)); render(); }
-  } else if(a==='del'){
-    var ok = await ask('「'+find(id).name+'」を削除しますか？', '', true, true);
-    if(ok){ await del(id); mem = mem.filter(function(f){return f.id!==id}); render(); }
-  }
+$("#list").addEventListener("click",async function(e){
+ var b=e.target.closest("button");if(!b)return;
+ var it=b.closest(".item"),id=it.dataset.id,i=items.findIndex(function(x){return x.id===id}),f=items[i],a=b.dataset.a;
+ if(a==="open")launch(f);
+ else if(a==="up"&&i>0){items.splice(i-1,0,items.splice(i,1)[0]);renumber()}
+ else if(a==="dn"&&i<items.length-1){items.splice(i+1,0,items.splice(i,1)[0]);renumber()}
+ else if(a==="ren"){var n=await askName(f.name);if(n){f.name=n;await put(f);render()}}
+ else if(a==="del"){if(await confirmDel(f.name)){await rm(id);wipe(id);items.splice(i,1);render()}}
 });
-document.getElementById('addBtn').onclick = function(){ document.getElementById('file').click(); };
-document.getElementById('file').onchange = async function(e){
-  var files = Array.prototype.slice.call(e.target.files);
-  for(var f of files){
-    var buf = await f.arrayBuffer(), html;
-    try{ html = new TextDecoder('utf-8',{fatal:true}).decode(buf); }
-    catch(_){ try{ html = new TextDecoder('shift_jis').decode(buf); }catch(__){ html = new TextDecoder('utf-8').decode(buf); } }
-    var rec = {id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), name: f.name.replace(/\.html?$/i,''), html: html, size: f.size, order: mem.length};
-    await put(rec); mem.push(rec);
-  }
-  e.target.value = ''; render();
+
+$("#add").onclick=function(){$("#file").click()};
+$("#file").onchange=async function(e){
+ var fs=Array.from(e.target.files);
+ for(var k=0;k<fs.length;k++){
+  var file=fs[k],buf=await file.arrayBuffer(),txt;
+  try{txt=new TextDecoder("utf-8",{fatal:true}).decode(buf)}catch(_){try{txt=new TextDecoder("shift_jis").decode(buf)}catch(__){txt=new TextDecoder().decode(buf)}}
+  var o={id:"f"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:file.name.replace(/\.html?$/i,""),html:txt,size:file.size,order:items.length};
+  items.push(o);await put(o);
+ }
+ e.target.value="";render();
 };
 
-// ---------- 起動 ----------
-// 開いたHTMLに注入する処理: 保存領域をファイルごとに分離 + 二本指5秒長押しで戻る
-function injected(P){
-  var pre = '__app_'+P+'__';
-  function shim(real){
-    var keys = function(){ var a=[]; for(var i=0;i<real.length;i++){ var k=real.key(i); if(k.indexOf(pre)===0) a.push(k.slice(pre.length)); } return a; };
-    var api = {
-      getItem:function(k){return real.getItem(pre+k)}, setItem:function(k,v){real.setItem(pre+k,String(v))},
-      removeItem:function(k){real.removeItem(pre+k)}, clear:function(){keys().forEach(function(k){real.removeItem(pre+k)})},
-      key:function(i){var k=keys()[i];return k===undefined?null:k}
-    };
-    return new Proxy(api,{
-      get:function(t,p){ if(p==='length') return keys().length; if(p in t) return t[p]; if(typeof p==='string'){var v=real.getItem(pre+p);return v===null?undefined:v;} },
-      set:function(t,p,v){ real.setItem(pre+String(p),String(v)); return true; },
-      deleteProperty:function(t,p){ real.removeItem(pre+String(p)); return true; },
-      has:function(t,p){ return p in t || real.getItem(pre+String(p))!==null; }
-    });
-  }
-  ['localStorage','sessionStorage'].forEach(function(n){
-    try{ var s = shim(window[n]); Object.defineProperty(window,n,{configurable:true,get:function(){return s}}); }catch(e){}
-  });
-  try{
-    var io = indexedDB.open.bind(indexedDB), dd = indexedDB.deleteDatabase.bind(indexedDB);
-    indexedDB.open = function(n,v){ return v===undefined ? io(pre+n) : io(pre+n,v); };
-    indexedDB.deleteDatabase = function(n){ return dd(pre+n); };
-  }catch(e){}
-  var timer = null;
-  function chk(e){
-    if(e.touches.length===2){
-      if(!timer) timer = setTimeout(function(){ timer=null; try{navigator.vibrate&&navigator.vibrate(80)}catch(_){} parent.postMessage({launcherBack:1},'*'); },5000);
-    } else if(timer){ clearTimeout(timer); timer = null; }
-  }
-  ['touchstart','touchend','touchcancel'].forEach(function(n){ window.addEventListener(n,chk,true); });
+/* Per-file localStorage namespace so each file keeps its own saved data */
+function shim(id){
+ var p="ht:"+id+":";
+ return '<script>(function(){var p='+JSON.stringify(p)+',real=null;try{real=window.localStorage;real.getItem("_")}catch(e){real=null}'
+ +'var mem={};function ks(){var o=[];if(real){for(var i=0;i<real.length;i++){var k=real.key(i);if(k.indexOf(p)===0)o.push(k.slice(p.length))}}else o=Object.keys(mem);return o}'
+ +'var api={getItem:function(k){k=String(k);var v=real?real.getItem(p+k):mem[k];return v==null?null:v},setItem:function(k,v){k=String(k);v=String(v);if(real)real.setItem(p+k,v);else mem[k]=v},removeItem:function(k){k=String(k);if(real)real.removeItem(p+k);else delete mem[k]},clear:function(){ks().forEach(function(k){api.removeItem(k)})},key:function(i){return ks()[i]||null}};'
+ +'var px=new Proxy(api,{get:function(t,k){if(k==="length")return ks().length;if(k in t)return t[k];return t.getItem(k)===null?undefined:t.getItem(k)},set:function(t,k,v){t.setItem(k,v);return true},has:function(t,k){return k in t||t.getItem(k)!==null},deleteProperty:function(t,k){t.removeItem(k);return true},ownKeys:function(){return ks()},getOwnPropertyDescriptor:function(t,k){return t.getItem(k)===null?undefined:{value:t.getItem(k),writable:true,enumerable:true,configurable:true}}});'
+ +'try{Object.defineProperty(window,"localStorage",{value:px,configurable:true})}catch(e){}})();<\/script>';
+}
+function wipe(id){try{var p="ht:"+id+":",d=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k.indexOf(p)===0)d.push(k)}d.forEach(function(k){localStorage.removeItem(k)})}catch(e){}}
+function inject(html,id){
+ var s=shim(id),m;
+ if(m=html.match(/<head[^>]*>/i))return html.replace(m[0],m[0]+s);
+ if(m=html.match(/<html[^>]*>/i))return html.replace(m[0],m[0]+s);
+ if(m=html.match(/<!doctype[^>]*>/i))return html.replace(m[0],m[0]+s);
+ return s+html;
 }
 function launch(f){
-  var code = '<scr'+'ipt>('+injected.toString()+')('+JSON.stringify(f.id)+')</scr'+'ipt>';
-  var h = f.html, m;
-  if((m = /<head[^>]*>/i.exec(h))) h = h.slice(0,m.index+m[0].length)+code+h.slice(m.index+m[0].length);
-  else if((m = /<html[^>]*>/i.exec(h))) h = h.slice(0,m.index+m[0].length)+code+h.slice(m.index+m[0].length);
-  else if((m = /^\s*<!doctype[^>]*>/i.exec(h))) h = h.slice(0,m[0].length)+code+h.slice(m[0].length);
-  else h = code+h;
-  var fr = document.getElementById('frame');
-  fr.srcdoc = h; fr.style.display = 'block';
-  document.getElementById('home').style.display = 'none';
-  document.body.style.overflow = 'hidden';
+ var fr=$("#frame");
+ fr.srcdoc=inject(f.html,f.id);
+ fr.style.display="block";
+ document.body.style.overflow="hidden";
+ try{var r=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();if(r&&r.catch)r.catch(function(){})}catch(e){}
+ setTimeout(function(){try{fr.contentWindow.focus()}catch(e){}},300);
 }
-function back(){
-  var fr = document.getElementById('frame');
-  fr.style.display = 'none'; fr.srcdoc = '';
-  document.getElementById('home').style.display = 'block';
-  document.body.style.overflow = '';
-}
-window.addEventListener('message', function(e){
-  if(e.source === document.getElementById('frame').contentWindow && e.data && e.data.launcherBack) back();
+
+open_().then(function(d){DB=d;load();try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}}).catch(function(){
+ $("#list").innerHTML='<div class="empty">この環境では保存機能を使えません</div>';
 });
-openDB().then(loadAll).then(render).catch(function(){
-  document.getElementById('list').innerHTML = '<div class="empty">保存領域を開けませんでした</div>';
-});
+})();
 </script>
 </body>
 </html>
